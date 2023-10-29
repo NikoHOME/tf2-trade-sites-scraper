@@ -1,6 +1,5 @@
-const Xray = require('x-ray');
-const x = Xray()
-
+import Xray from 'x-ray';
+const x = new Xray();
 class ItemPrice {
     constructor() {
         this.keys = 0;
@@ -15,6 +14,14 @@ class ScrapedItem {
         this.ballance = 0;
     }
 }
+
+class ProgramMemory {
+    constructor() {
+        this.scrapingOutput = [];
+    }
+}
+
+let programMemory = new ProgramMemory();
 
 function compareScrapedItems(a, b ) {
     if ( a.ballance < b.ballance ){
@@ -53,7 +60,7 @@ function getRefDifference(sellPrice, buyPrice) {
 
 
 const KeyUrl = "https://backpack.tf/stats/Unique/Mann%20Co.%20Supply%20Crate%20Key/Tradable/Craftable";
-
+let keyPrice = 0;
 //Create global keyPrice
 function getKeyPrice() {
     x(KeyUrl, ".price-box", ".value")
@@ -65,19 +72,14 @@ function getKeyPrice() {
 }
 
 
-const links = [
-    "https://backpack.tf/stats/Unique/Taunt%3A%20Conga/Tradable/Craftable",
-    "https://backpack.tf/stats/Unique/Taunt%3A%20Square%20Dance/Tradable/Craftable",
-    "https://backpack.tf/stats/Unique/Taunt%3A%20Skullcracker/Tradable/Craftable",
-    "https://backpack.tf/stats/Unique/Mann%20Co.%20Supply%20Crate%20Key/Tradable/Craftable",
-];
 
-function scrapeLinks(outputList) {
+
+function scrapeLinks(linkList) {
 
     //Couting scraped items;
-    let counter = links.length;
+    let counter = linkList.length;
     
-    for(let link of links) {
+    for(let link of linkList) {
         x(link, ".col-md-6", [{
             title: "h4",
             list: x( ".listing", [{
@@ -90,26 +92,73 @@ function scrapeLinks(outputList) {
                 buyout_trade: x(".btn-success", "i.fa-exchange@class"),     //green icon + arrows
                 instant_trade: x(".btn-success", "i.fa-flash@class"),       //green icon + flash
 
+                //Check if has any special modifiers
+                spell: '.item@data-spell_1',
+                effect: '.item@data-effect_name',
+
             }])
         }])
         ((err, result) => {
             
+            
+            if(err) {
+                console.log(err);
+                return;
+            }
+
+            if(result.length != 4) {
+                console.log("<!!> Scrape failed for " + link);
+                counter -= 1;
+                return;
+            }
+
             //Remove "Suggestion" section 
             result = result.slice(0,2);
 
             for(let column of result) {
-                for(item of column.list) {
+                for(let item of column.list) {
                     // Remove friend to trade trades (can't automate them)
                     if(Object.keys(item).indexOf("friend_to_trade") != -1) {
-                        column.list.splice(column.list.indexOf(item), 1);
+
+                        column.list = column.list.filter( e => e !== item);
+                        continue;
+                    }
+                    // Remove rare modifiers
+                    if(Object.keys(item).indexOf("spell") != -1) {
+                        column.list = column.list.filter( e => e !== item);
+                        continue;
+                    }
+                    
+                    if(Object.keys(item).indexOf("effect") != -1) {
+                        column.list = column.list.filter( e => e !== item);
+                        continue;
+                    }
+
+                    //Check if has normal currency listed
+                    if(Object.keys(item).indexOf("value") == -1) {
+                        column.list = column.list.filter( e => e !== item);
+                        continue;
                     }
                     
                 }
             }
+            
+            if(result[0].list.length == 0 || result[1].list.length == 0) {
+                console.log("<!!> Not enough items found, scrape failed for " + link);
+                counter -=1;
+                return;
+            }
+
+
+
             //Pick the top offers (best prices)
+            
             let bestSell = result[0].list[0];
             let bestBuy = result[1].list[0];
-
+            
+            //console.log(bestBuy);
+            //console.log(bestSell);
+            
             let sellPrice = parseItemPrice(bestSell.value);
             let buyPrice = parseItemPrice(bestBuy.value);
 
@@ -118,31 +167,33 @@ function scrapeLinks(outputList) {
             let scrapedItem = new ScrapedItem();
 
             scrapedItem.name = result[0].list[0].name;
-            scrapedItem.ballance = refDiffence;
+            scrapedItem.ballance = parseFloat(refDiffence);
 
 
-            outputList.push(scrapedItem);
+            programMemory.scrapingOutput.push(scrapedItem);
             counter -= 1;
+            console.log("<++> Scrape finished for " + link);
 
 
-            if(counter == 0)
-                process.emit("scrapingFinished", outputList);
+            if(counter == 0) {
+                process.emit("scrapingFinished");
+            }
         });
     }
 
 }
 
-
+import * as links from './links.js';
 
 getKeyPrice();
 
+
 process.on("keyPrice", () => {
     console.log("<++> Key price fetched = " + keyPrice);
-    let scrapedItems = [];
-    scrapeLinks(scrapedItems);
+    scrapeLinks(links.tauntLinks);
 });
 
-process.on("scrapingFinished", (scrapedItems) => {
-    scrapedItems.sort(compareScrapedItems);
-    console.log(scrapedItems);
-})
+process.on("scrapingFinished", () => {
+    programMemory.scrapingOutput.sort(compareScrapedItems);
+    console.log(programMemory.scrapingOutput);
+});

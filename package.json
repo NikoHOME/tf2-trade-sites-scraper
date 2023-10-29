@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "dependencies": {
     "x-ray": "^2.3.4"
   }
