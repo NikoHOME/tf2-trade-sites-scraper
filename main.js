@@ -74,6 +74,7 @@ function getKeyPrice() {
 
 
 
+
 function scrapeLinks(linkList) {
 
     //Couting scraped items;
@@ -89,6 +90,7 @@ function scrapeLinks(linkList) {
                 //Check if specific elements exists to determine prefered trade type
                 friend_to_trade: x(".btn-primary", "i.fa-user-plus@class"), //blue icon + user
                 hagle_trade: x(".btn-primary", "i.fa-exchange@class"),      //blue icon + arrows
+                friend_to_trade_buyout: x(".btn-success", "i.fa-user-plus@class"), //green icon + user
                 buyout_trade: x(".btn-success", "i.fa-exchange@class"),     //green icon + arrows
                 instant_trade: x(".btn-success", "i.fa-flash@class"),       //green icon + flash
 
@@ -114,27 +116,23 @@ function scrapeLinks(linkList) {
 
             //Remove "Suggestion" section 
             result = result.slice(0,2);
-
+            const filteredFields = [
+                "friend_to_trade", 
+                "friend_to_trade_buyout",
+                "spell",
+                "effect",
+            ];
             for(let column of result) {
                 for(let item of column.list) {
                     // Remove friend to trade trades (can't automate them)
-                    if(Object.keys(item).indexOf("friend_to_trade") != -1) {
+                    for(let field of filteredFields) {
+                        if(Object.keys(item).indexOf(field) != -1) {
 
-                        column.list = column.list.filter( e => e !== item);
-                        continue;
+                            column.list = column.list.filter( e => e !== item);
+                            continue;
+                        }
                     }
-                    // Remove rare modifiers
-                    if(Object.keys(item).indexOf("spell") != -1) {
-                        column.list = column.list.filter( e => e !== item);
-                        continue;
-                    }
-                    
-                    if(Object.keys(item).indexOf("effect") != -1) {
-                        column.list = column.list.filter( e => e !== item);
-                        continue;
-                    }
-
-                    //Check if has normal currency listed
+                    //Check if the item has normal currency listed otherwise remove it
                     if(Object.keys(item).indexOf("value") == -1) {
                         column.list = column.list.filter( e => e !== item);
                         continue;
