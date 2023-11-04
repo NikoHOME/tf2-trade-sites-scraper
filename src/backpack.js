@@ -101,8 +101,8 @@ function addListeners(programMemory) {
     process.on("keyPrice", () => {
         //console.log("<++> Key price fetched = " + programMemory.keyPrice);
 
-        if(programMemory.scrapingLinksList.length > 0) {
-            programMemory.currentLink = programMemory.scrapingLinksList.pop();
+        if(programMemory.backpackLinksList.length > 0) {
+            programMemory.currentLink = programMemory.backpackLinksList.pop();
             scrapeLinks(programMemory, Links.backpackLinks[programMemory.currentLink]);
         } 
     });
@@ -117,8 +117,8 @@ function addListeners(programMemory) {
     
         programMemory.scrapingOutput = [];
     
-        if(programMemory.scrapingLinksList.length > 0) {
-            programMemory.currentLink = programMemory.scrapingLinksList.pop()
+        if(programMemory.backpackLinksList.length > 0) {
+            programMemory.currentLink = programMemory.backpackLinksList.pop()
             scrapeLinks(programMemory, Links.backpackLinks[programMemory.currentLink]);
         }
     });

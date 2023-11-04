@@ -14,6 +14,7 @@ export const Prompt = new MultiSelect({
     choices: [
         { message: 'currency (backpack.tf)', name: 'backpackCurrencyLinks' },
         { message: 'taunts (backpack.tf)', name: 'backpackTauntLinks' },
+        { message: 'taunts (scrap.tf)', name: 'scrapTauntLink'}
     ],
 }); 
 
@@ -27,6 +28,7 @@ export const Bar = new SingleBar({
 import { Links } from './links.js';
 
 import { startBackpackScraping } from './backpack.js';
+import { startScrapScraping } from './scrap.js';
 
 export function startPromt(programMemory) {
     programMemory.prompt.run()
@@ -34,9 +36,21 @@ export function startPromt(programMemory) {
 
             for(let answer of answers) {
                 if(Links.backpackLinks.hasOwnProperty(answer)) 
-                    programMemory.scrapingLinksList.push(answer);
+                    programMemory.backpackLinksList.push(answer);
             }
-            startBackpackScraping(programMemory);
+            
+            if(programMemory.backpackLinksList.length > 0)
+                startBackpackScraping(programMemory);
+            
+            for(let answer of answers) {
+                if(Links.scrapLinks.hasOwnProperty(answer)) 
+                    programMemory.scrapLinksList.push(answer);
+            }
+            
+            if(programMemory.scrapLinksList.length > 0)
+                startScrapScraping(programMemory);
+
+            
         })
         .catch(console.error);
 }

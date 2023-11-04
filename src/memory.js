@@ -10,7 +10,8 @@ import { getKeyPrice } from './backpack.js';
 
 export class ProgramMemory {
     constructor() {
-        this.scrapingLinksList = [];
+        this.backpackLinksList = [];
+        this.scrapLinksList = [];
         this.scrapingOutput = [];
         this.scrapingItemCounter;
         this.currentLink;

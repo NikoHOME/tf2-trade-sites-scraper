@@ -53,5 +53,8 @@ export const Links = {
             "https://backpack.tf/stats/Unique/Tour%20of%20Duty%20Ticket/Tradable/Craftable",
             "https://backpack.tf/stats/Unique/Earbuds/Tradable/Craftable",
         ],
+    },
+    scrapLinks : {
+        scrapTauntLink : "https://scrap.tf/buy/items",
     }
 }
