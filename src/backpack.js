@@ -76,6 +76,7 @@ async function scrapeLink(programMemory, link) {
     });
 }
 
+import { FileNames, cacheObject, ObjectFileNames } from './file.js';
 
 async function scrapeLinks(programMemory, linkList) {
 
@@ -95,7 +96,7 @@ async function scrapeLinks(programMemory, linkList) {
     console.log(programMemory.scrapingOutput);
 
     cacheText(convertScrapingOutput(programMemory.scrapingOutput), FileNames[programMemory.currentLink]);
-
+    cacheObject(programMemory.scrapingOutput, ObjectFileNames[FileNames[programMemory.currentLink]]);
     programMemory.scrapingOutput = [];
 
     if(programMemory.backpackLinksList.length > 0) {
@@ -108,10 +109,6 @@ async function scrapeLinks(programMemory, linkList) {
 import { Links } from './links.js';
 import { cacheText } from './file.js';
 
-const FileNames = {
-    backpackCurrencyLinks: 'backpack_currency',
-    backpackTauntLinks: 'backpack_taunt',
-};
 
 
 
@@ -209,6 +206,7 @@ function getRefDifference(programMemory, sellPrice, buyPrice) {
     return (sellPrice.ref - buyPrice.ref + (sellPrice.keys - buyPrice.keys) * programMemory.keyPrice).toFixed(2);
 }
 
+import { removeSpecialChars } from './file.js';
 
 function convertScrapingOutput(scrapingOutput) {
 
@@ -221,13 +219,9 @@ function convertScrapingOutput(scrapingOutput) {
         output += "Sell comment: "  + item.sellOrder.comment + "\n";
         output += "Buy comment: " + item.buyOrder.comment + "\n\n";
     }
-    const excludeList = ["\"", "\'"];
-    for(let string of excludeList) {
-        console.log(string);
-        output = output.replaceAll(string, "");
-    }
+    
 
-    return output;
+    return removeSpecialChars(output);
 }
 
 

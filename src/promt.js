@@ -14,7 +14,8 @@ export const Prompt = new MultiSelect({
     choices: [
         { message: 'currency (backpack.tf)', name: 'backpackCurrencyLinks' },
         { message: 'taunts (backpack.tf)', name: 'backpackTauntLinks' },
-        { message: 'taunts (scrap.tf)', name: 'scrapTauntLink'}
+        { message: 'taunts (scrap.tf)', name: 'scrapTauntLink'},
+        { message: 'combine taunt files', name: 'combine'},
     ],
 }); 
 
@@ -29,11 +30,12 @@ import { Links } from './links.js';
 
 import { startBackpackScraping } from './backpack.js';
 import { startScrapScraping } from './scrap.js';
+import { combineTauntFiles } from './file.js';
 
 export async function startPromt(programMemory) {
     programMemory.prompt.run()
         .then(answers => {
-
+            //Filter backpack.tf queries
             for(let answer of answers) {
                 if(Links.backpackLinks.hasOwnProperty(answer)) 
                     programMemory.backpackLinksList.push(answer);
@@ -41,7 +43,8 @@ export async function startPromt(programMemory) {
             
             if(programMemory.backpackLinksList.length > 0)
                 startBackpackScraping(programMemory);
-            
+
+            //Filter scrap.tf queries
             for(let answer of answers) {
                 if(Links.scrapLinks.hasOwnProperty(answer)) 
                     programMemory.scrapLinksList.push(answer);
@@ -49,6 +52,11 @@ export async function startPromt(programMemory) {
             
             if(programMemory.scrapLinksList.length > 0)
                 startScrapScraping(programMemory);
+
+            for(let answer of answers) {
+                if(answer == "combine") 
+                    combineTauntFiles();
+            }
 
             
         })

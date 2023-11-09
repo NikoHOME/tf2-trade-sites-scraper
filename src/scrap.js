@@ -1,12 +1,33 @@
 
 
+function convertScrapingOutput(scrapingOutput) {
+
+    let output = "";
+    for(let item of scrapingOutput.content[6].items) {
+        output += item.name + "\n";
+        output += "Buy price: " + item.price + "\n\n";
+    }
+    const excludeList = ["\"", "\'"];
+    for(let string of excludeList) {
+        console.log(string);
+        output = output.replaceAll(string, "");
+    }
+
+    return output;
+}
+
+import { cacheText, cacheObject, FileNames, ObjectFileNames, readCacheObject } from "./file.js";
+
 function processScrape(programMemory, err, result, link) {
     if(err) {
         scrapeLink(programMemory,link);
         return;
     }
     
-    console.log(result.content[6].items);
+    cacheText(convertScrapingOutput(result), FileNames[programMemory.currentLink]);
+    cacheObject(result.content[6].items, ObjectFileNames[FileNames[programMemory.currentLink]]);
+
+    console.log(readCacheObject(ObjectFileNames[FileNames[programMemory.currentLink]]));
 }
 
 
@@ -32,5 +53,6 @@ async function scrapeLink(programMemory, link) {
 import { Links } from "./links.js";
 
 export async function startScrapScraping(programMemory) {
-    await scrapeLink(programMemory, Links.scrapLinks[programMemory.scrapLinksList[0]])
+    programMemory.currentLink = programMemory.scrapLinksList[0];
+    await scrapeLink(programMemory, Links.scrapLinks[programMemory.currentLink])
 }
