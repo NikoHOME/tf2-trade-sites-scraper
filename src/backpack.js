@@ -1,16 +1,65 @@
+class ItemPrice {
+    constructor() {
+        this.keys = 0;
+        this.ref = 0;
+    }
+}
+
+
+class ScrapedItem {
+    constructor() {
+        this.name = "";
+        this.balance = 0;
+        this.buyOrder = 0;
+        this.sellOrder = 0;
+    }
+}
+
+
+function compareScrapedItems(a, b ) {
+    if ( a.balance < b.balance ){
+      return -1;
+    }
+    if ( a.balance > b.balance ){
+      return 1;
+    }
+    return 0;
+  }
+
+function parseItemPrice(priceString) {
+    // 3 Cases
+    // 2 keys, 34.55 ref
+    // 2 keys
+    // 34.55 ref
+    //Remove commas and split by spaces
+
+    let splitPriceString = priceString.replace(",","").split(" ");
+    let itemPrice = new ItemPrice();
+    //Case 1
+    if(splitPriceString.length > 2) {
+        itemPrice.keys = splitPriceString[0];
+        itemPrice.ref = splitPriceString[2];
+        return itemPrice;
+    }
+    //Case 2 & 3
+    itemPrice[splitPriceString[1]] = splitPriceString[0];
+    return itemPrice;
+    
+}
+
 function scrapeLink(programMemory, link) {
     programMemory.xray(link, ".col-md-6", [{
         title: "h4",
-        list: x( ".listing", [{
+        list: programMemory.xray( ".listing", [{
             name: '.item@title',
             value: '.item@data-listing_price',
             comment: '.item@data-listing_comment',
             //Check if specific elements exists to determine prefered trade type
-            friend_to_trade: x(".btn-primary", "i.fa-user-plus@class"), //blue icon + user
-            hagle_trade: x(".btn-primary", "i.fa-exchange@class"),      //blue icon + arrows
-            friend_to_trade_buyout: x(".btn-success", "i.fa-user-plus@class"), //green icon + user
-            buyout_trade: x(".btn-success", "i.fa-exchange@class"),     //green icon + arrows
-            instant_trade: x(".btn-success", "i.fa-flash@class"),       //green icon + flash
+            friend_to_trade: programMemory.xray(".btn-primary", "i.fa-user-plus@class"), //blue icon + user
+            hagle_trade: programMemory.xray(".btn-primary", "i.fa-exchange@class"),      //blue icon + arrows
+            friend_to_trade_buyout: programMemory.xray(".btn-success", "i.fa-user-plus@class"), //green icon + user
+            buyout_trade: programMemory.xray(".btn-success", "i.fa-exchange@class"),     //green icon + arrows
+            instant_trade: programMemory.xray(".btn-success", "i.fa-flash@class"),       //green icon + flash
 
             //Check if has any special modifiers
             spell: '.item@data-spell_1',
@@ -26,8 +75,6 @@ function scrapeLink(programMemory, link) {
 
 function scrapeLinks(programMemory, linkList) {
 
-
-
     //Couting scraped items;
     programMemory.scrapingItemCounter = linkList.length;
     //Start progress bar
@@ -41,21 +88,26 @@ function scrapeLinks(programMemory, linkList) {
 
 }
 
-export function addListeners(programMemory) {
+import { Links } from './links.js';
+import { cacheText } from './file.js';
+
+const FileNames = {
+    backpackCurrencyLinks: 'backpack_currency',
+    backpackTauntLinks: 'backpack_taunt',
+};
+
+
+function addListeners(programMemory) {
     process.on("keyPrice", () => {
-        console.log("<++> Key price fetched = " + programMemory.keyPrice);
-        programMemory.prompt.run()
-            .then(answers => {
-                
-                programMemory.scrapingLinksList = answers;
-                
-                programMemory.currentLink = programMemory.scrapingLinksList.pop()
-                scrapeLinks(programMemory, links[programMemory.currentLink]);
-            })
-            .catch(console.error);
-    
+        //console.log("<++> Key price fetched = " + programMemory.keyPrice);
+
+        if(programMemory.backpackLinksList.length > 0) {
+            programMemory.currentLink = programMemory.backpackLinksList.pop();
+            scrapeLinks(programMemory, Links.backpackLinks[programMemory.currentLink]);
+        } 
     });
-    
+
+
     process.on("scrapingFinished", () => {
         programMemory.progressBar.stop();
         programMemory.scrapingOutput.sort(compareScrapedItems);
@@ -65,9 +117,9 @@ export function addListeners(programMemory) {
     
         programMemory.scrapingOutput = [];
     
-        if(programMemory.scrapingLinksList.length > 0) {
-            programMemory.currentLink = programMemory.scrapingLinksList.pop()
-            scrapeLinks(programMemory, links[programMemory.currentLink]);
+        if(programMemory.backpackLinksList.length > 0) {
+            programMemory.currentLink = programMemory.backpackLinksList.pop()
+            scrapeLinks(programMemory, Links.backpackLinks[programMemory.currentLink]);
         }
     });
 }
@@ -86,11 +138,6 @@ function processScrape(programMemory, err, result, link) {
         if(programMemory.debug) console.log("<!!> Scrape failed for " + link);
         if(programMemory.debug) console.log("<||> Retrying " + link);
         scrapeLink(programMemory, link);
-        return;
-        programMemory.scrapingItemCounter -= 1;
-        if(programMemory.scrapingItemCounter == 0) {
-            process.emit("scrapingFinished");
-        }
         return;
     }
 
@@ -140,7 +187,7 @@ function processScrape(programMemory, err, result, link) {
     let sellPrice = parseItemPrice(bestSell.value);
     let buyPrice = parseItemPrice(bestBuy.value);
 
-    let refDiffence = getRefDifference(sellPrice, buyPrice);
+    let refDiffence = getRefDifference(programMemory, sellPrice, buyPrice);
     
     let scrapedItem = new ScrapedItem();
 
@@ -171,8 +218,8 @@ export function getKeyPrice(programMemory) {
 }
 
 
-function getRefDifference(sellPrice, buyPrice) {
-    return (sellPrice.ref - buyPrice.ref + (sellPrice.keys - buyPrice.keys) * keyPrice).toFixed(2);
+function getRefDifference(programMemory, sellPrice, buyPrice) {
+    return (sellPrice.ref - buyPrice.ref + (sellPrice.keys - buyPrice.keys) * programMemory.keyPrice).toFixed(2);
 }
 
 
@@ -197,14 +244,15 @@ function convertScrapingOutput(scrapingOutput) {
 }
 
 
-export const FileNames = {
-    currencyLinks: 'currency',
-    tauntLinks: 'taunt',
-};
 
 
 
 
-function cacheText(text, path) {
-    fs.writeFileSync("./cache/" + path, text);
+
+
+
+export function startBackpackScraping(programMemory) {
+    addListeners(programMemory);
+
+    getKeyPrice(programMemory);
 }
