@@ -47,8 +47,12 @@ function parseItemPrice(priceString) {
     
 }
 
-function scrapeLink(programMemory, link) {
-    programMemory.xray(link, ".col-md-6", [{
+
+async function scrapeLink(programMemory, link) {
+    //Reset the driver to default
+    programMemory.xray.driver(programMemory.backpackDriver);
+
+    await programMemory.xray(link, ".col-md-6", [{
         title: "h4",
         list: programMemory.xray( ".listing", [{
             name: '.item@title',
@@ -73,7 +77,7 @@ function scrapeLink(programMemory, link) {
 }
 
 
-function scrapeLinks(programMemory, linkList) {
+async function scrapeLinks(programMemory, linkList) {
 
     //Couting scraped items;
     programMemory.scrapingItemCounter = linkList.length;
@@ -83,7 +87,20 @@ function scrapeLinks(programMemory, linkList) {
     });
     
     for(let link of linkList) {
-        scrapeLink(programMemory, link);
+        await scrapeLink(programMemory, link);
+    }
+
+    programMemory.progressBar.stop();
+    programMemory.scrapingOutput.sort(compareScrapedItems);
+    console.log(programMemory.scrapingOutput);
+
+    cacheText(convertScrapingOutput(programMemory.scrapingOutput), FileNames[programMemory.currentLink]);
+
+    programMemory.scrapingOutput = [];
+
+    if(programMemory.backpackLinksList.length > 0) {
+        programMemory.currentLink = programMemory.backpackLinksList.pop()
+        scrapeLinks(programMemory, Links.backpackLinks[programMemory.currentLink]);
     }
 
 }
@@ -97,32 +114,6 @@ const FileNames = {
 };
 
 
-function addListeners(programMemory) {
-    process.on("keyPrice", () => {
-        //console.log("<++> Key price fetched = " + programMemory.keyPrice);
-
-        if(programMemory.backpackLinksList.length > 0) {
-            programMemory.currentLink = programMemory.backpackLinksList.pop();
-            scrapeLinks(programMemory, Links.backpackLinks[programMemory.currentLink]);
-        } 
-    });
-
-
-    process.on("scrapingFinished", () => {
-        programMemory.progressBar.stop();
-        programMemory.scrapingOutput.sort(compareScrapedItems);
-        console.log(programMemory.scrapingOutput);
-    
-        cacheText(convertScrapingOutput(programMemory.scrapingOutput), FileNames[programMemory.currentLink]);
-    
-        programMemory.scrapingOutput = [];
-    
-        if(programMemory.backpackLinksList.length > 0) {
-            programMemory.currentLink = programMemory.backpackLinksList.pop()
-            scrapeLinks(programMemory, Links.backpackLinks[programMemory.currentLink]);
-        }
-    });
-}
 
 function processScrape(programMemory, err, result, link) {
 
@@ -181,8 +172,6 @@ function processScrape(programMemory, err, result, link) {
     let bestSell = result[0].list[0];
     let bestBuy = result[1].list[0];
     
-    //console.log(bestBuy);
-    //console.log(bestSell);
     
     let sellPrice = parseItemPrice(bestSell.value);
     let buyPrice = parseItemPrice(bestBuy.value);
@@ -196,7 +185,6 @@ function processScrape(programMemory, err, result, link) {
     scrapedItem.buyOrder = bestBuy;
     scrapedItem.sellOrder = bestSell;
 
-    //console.log(programMemory.scrapingOutput);
     programMemory.scrapingOutput.push(scrapedItem);
 
     if(programMemory.debug) console.log("<++> Scrape finished for " + link);
@@ -208,12 +196,11 @@ function processScrape(programMemory, err, result, link) {
 const KeyUrl = "https://backpack.tf/stats/Unique/Mann%20Co.%20Supply%20Crate%20Key/Tradable/Craftable";
 
 //Create global keyPrice
-export function getKeyPrice(programMemory) {
-    programMemory.xray(KeyUrl, ".price-box", ".value")
+export async function getKeyPrice(programMemory) {
+    await programMemory.xray(KeyUrl, ".price-box", ".value")
     ((err, result) => {
         result = result.replace(/\s+/g, "").split("–")[0];
         programMemory.keyPrice = result;
-        process.emit("keyPrice");
     })
 }
 
@@ -244,15 +231,12 @@ function convertScrapingOutput(scrapingOutput) {
 }
 
 
+export async function startBackpackScraping(programMemory) {
 
+    await getKeyPrice(programMemory);
 
-
-
-
-
-
-export function startBackpackScraping(programMemory) {
-    addListeners(programMemory);
-
-    getKeyPrice(programMemory);
+    if(programMemory.backpackLinksList.length > 0) {
+        programMemory.currentLink = programMemory.backpackLinksList.pop();
+        scrapeLinks(programMemory, Links.backpackLinks[programMemory.currentLink]);
+    } 
 }

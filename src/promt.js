@@ -30,7 +30,7 @@ import { Links } from './links.js';
 import { startBackpackScraping } from './backpack.js';
 import { startScrapScraping } from './scrap.js';
 
-export function startPromt(programMemory) {
+export async function startPromt(programMemory) {
     programMemory.prompt.run()
         .then(answers => {
 
