@@ -15,6 +15,7 @@ export const Prompt = new MultiSelect({
         { message: 'currency (backpack.tf)', name: 'backpackCurrencyLinks' },
         { message: 'taunts (backpack.tf)', name: 'backpackTauntLinks' },
         { message: 'taunts (scrap.tf)', name: 'scrapTauntLink'},
+        { message: 'weapons (scrap.tf)', name: 'scrapWeaponLink'},
         { message: 'combine taunt files', name: 'combine'},
     ],
 }); 

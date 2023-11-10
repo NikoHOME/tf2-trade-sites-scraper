@@ -21,12 +21,14 @@ export const FileNames = {
     backpackCurrencyLinks: 'backpack_currency',
     backpackTauntLinks: 'backpack_taunt',
     scrapTauntLink: 'scrap_taunt',
+    scrapWeaponLink: 'scrap_weapon',
 };
 
 export const ObjectFileNames = {
     backpack_currency: '.backpack_currency',
     backpack_taunt: '.backpack_taunt',
     scrap_taunt: '.scrap_taunt',
+    scrap_weapon: '.scrap_weapon',
 };
 
 export function removeSpecialChars(text) {

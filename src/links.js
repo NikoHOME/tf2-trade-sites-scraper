@@ -56,5 +56,6 @@ export const Links = {
     },
     scrapLinks : {
         scrapTauntLink : "https://scrap.tf/buy/items",
+        scrapWeaponLink : "https://scrap.tf/buy/weapons",
     }
 }
