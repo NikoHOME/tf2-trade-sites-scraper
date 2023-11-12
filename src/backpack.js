@@ -169,6 +169,10 @@ const KeyUrl = "https://backpack.tf/stats/Unique/Mann%20Co.%20Supply%20Crate%20K
 export async function getKeyPrice(programMemory) {
     await programMemory.xray(KeyUrl, ".price-box", ".value")
     ((err, result) => {
+        if(err) {
+            console.log(err);
+            return;
+        }
         result = result.replace(/\s+/g, "").split("–")[0];
         programMemory.keyPrice = result;
     })
