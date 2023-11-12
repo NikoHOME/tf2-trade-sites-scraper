@@ -29,11 +29,13 @@ export const Bar = new SingleBar({
 
 import { Links } from './links.js';
 
-import { startBackpackScraping } from './backpack.js';
+import { startBackpackScraping, getKeyPrice } from './backpack.js';
 import { startScrapScraping } from './scrap.js';
 import { combineTauntFiles } from './file.js';
 
 export async function startPromt(programMemory) {
+    await getKeyPrice(programMemory);
+    
     programMemory.prompt.run()
         .then(answers => {
             //Filter backpack.tf queries
@@ -56,7 +58,7 @@ export async function startPromt(programMemory) {
 
             for(let answer of answers) {
                 if(answer == "combine") 
-                    combineTauntFiles();
+                    combineTauntFiles(programMemory);
             }
 
             

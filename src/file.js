@@ -39,7 +39,20 @@ export function removeSpecialChars(text) {
     return text;
 }
 
-export function combineTauntFiles() {
+import { parseItemPrice, getRefDifference } from './func.js';
+
+
+function compareCombinedItems(a, b ) {
+    if ( a.scrapBackpackSellBalance < b.scrapBackpackSellBalance ){
+      return -1;
+    }
+    if ( a.scrapBackpackSellBalance > b.scrapBackpackSellBalance ){
+      return 1;
+    }
+    return 0;
+  }
+
+export function combineTauntFiles(programMemory) {
     
     if(!fs.existsSync("./cache/.backpack_taunt")) {
         console.log("Backpack taunt list missing");
@@ -54,25 +67,53 @@ export function combineTauntFiles() {
     let scrap = readCacheObject(".scrap_taunt");
     let backpack = readCacheObject(".backpack_taunt");
 
-    let output = "";
+    let combinedArray = [];
 
     for(let scrapItem of scrap) {
         for(let backpackItem of backpack) {
             if(backpackItem.name == scrapItem.name)
             {
-                output += backpackItem.name + "\n";
 
-                output += "Balance: " + backpackItem.balance + "\n";
-                output += "Sell price: " + backpackItem.sellOrder.value + "\n";
-                output += "Buy price: " + backpackItem.buyOrder.value + "\n";
-                output += "Scrap buy price: " + scrapItem.price + "\n";
-                output += "Sell comment: "  + backpackItem.sellOrder.comment + "\n";
-                output += "Buy comment: " + backpackItem.buyOrder.comment + "\n\n";
+                combinedArray.push({
+                    name: backpackItem.name,
+                    scrapBackpackSellBalance: getRefDifference(
+                        programMemory,
+                        parseItemPrice(scrapItem.price),
+                        parseItemPrice(backpackItem.sellOrder.value), 
+                        
+                    ),
+                    scrapBackpackBuyBalance: getRefDifference(
+                        programMemory,
+                        parseItemPrice(scrapItem.price),
+                        parseItemPrice(backpackItem.buyOrder.value), 
+                        
+                    ),
+                    balance: backpackItem.balance,
+                    backpackSell: backpackItem.sellOrder.value,
+                    backpackBuy: backpackItem.buyOrder.value,
+                    scrapBuy: scrapItem.price,
+                    sellComm: backpackItem.sellOrder.comment,
+                    buyComm: backpackItem.buyOrder.comment,
+                });
+
+
             }
         }
     }
+    combinedArray.sort(compareCombinedItems);
+    let output = "";
+    for(let item of combinedArray) {
+        output += item.name + "\n";
 
-
+        output += "ScrapSellBalance: " + item.scrapBackpackSellBalance + "\n";
+        output += "ScrapBuyBalance: " + item.scrapBackpackBuyBalance + "\n";
+        output += "Balance: " + item.balance + "\n";
+        output += "Sell price: " + item.backpackSell + "\n";
+        output += "Buy price: " + item.backpackBuy + "\n";
+        output += "Scrap buy price: " + item.scrapBuy + "\n";
+        output += "Sell comment: "  + item.sellComm + "\n";
+        output += "Buy comment: " + item.buyComm + "\n\n";
+    }
 
     cacheText(removeSpecialChars(output), "taunt_combine");
 }

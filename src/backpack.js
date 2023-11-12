@@ -1,10 +1,3 @@
-class ItemPrice {
-    constructor() {
-        this.keys = 0;
-        this.ref = 0;
-    }
-}
-
 
 class ScrapedItem {
     constructor() {
@@ -26,26 +19,6 @@ function compareScrapedItems(a, b ) {
     return 0;
   }
 
-function parseItemPrice(priceString) {
-    // 3 Cases
-    // 2 keys, 34.55 ref
-    // 2 keys
-    // 34.55 ref
-    //Remove commas and split by spaces
-
-    let splitPriceString = priceString.replace(",","").split(" ");
-    let itemPrice = new ItemPrice();
-    //Case 1
-    if(splitPriceString.length > 2) {
-        itemPrice.keys = splitPriceString[0];
-        itemPrice.ref = splitPriceString[2];
-        return itemPrice;
-    }
-    //Case 2 & 3
-    itemPrice[splitPriceString[1]] = splitPriceString[0];
-    return itemPrice;
-    
-}
 
 
 async function scrapeLink(programMemory, link) {
@@ -110,7 +83,7 @@ import { Links } from './links.js';
 import { cacheText } from './file.js';
 
 
-
+import { parseItemPrice, getRefDifference } from './func.js';
 
 function processScrape(programMemory, err, result, link) {
 
@@ -178,7 +151,7 @@ function processScrape(programMemory, err, result, link) {
     let scrapedItem = new ScrapedItem();
 
     scrapedItem.name = result[0].list[0].name;
-    scrapedItem.balance = parseFloat(refDiffence);
+    scrapedItem.balance = refDiffence;
     scrapedItem.buyOrder = bestBuy;
     scrapedItem.sellOrder = bestSell;
 
@@ -202,9 +175,7 @@ export async function getKeyPrice(programMemory) {
 }
 
 
-function getRefDifference(programMemory, sellPrice, buyPrice) {
-    return (sellPrice.ref - buyPrice.ref + (sellPrice.keys - buyPrice.keys) * programMemory.keyPrice).toFixed(2);
-}
+
 
 import { removeSpecialChars } from './file.js';
 
@@ -227,7 +198,7 @@ function convertScrapingOutput(scrapingOutput) {
 
 export async function startBackpackScraping(programMemory) {
 
-    await getKeyPrice(programMemory);
+    
 
     if(programMemory.backpackLinksList.length > 0) {
         programMemory.currentLink = programMemory.backpackLinksList.pop();
