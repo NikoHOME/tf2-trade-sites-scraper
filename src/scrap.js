@@ -40,7 +40,9 @@ function processScrape(programMemory, err, result, link) {
 
     switch(link) {
         case Links.scrapLinks.scrapTauntLink:
-            output = result.content[6].items;
+            //Find section index of Taunts in item display titles
+            let index = result.titles.indexOf("Taunts"); 
+            output = result.content[index].items;
             break;
         case Links.scrapLinks.scrapWeaponLink:
             output = result.content[0].items;
@@ -62,14 +64,14 @@ async function scrapeLink(programMemory, link) {
     programMemory.xray.driver(programMemory.scrapDriver);	
 
     programMemory.xray(link, ".rev-items-container", {
-    titles: programMemory.xray(".items-category-header",[""]),
-    content: programMemory.xray(".banking-category",[{
-        items: programMemory.xray(".item",[{
-            name: "@data-title",
-            price: ".item-value-indicator",
-            amount: "@data-num-available",
-        }])
-    }]),
+        titles: programMemory.xray(".items-category-header",[""]),
+        content: programMemory.xray(".banking-category",[{
+            items: programMemory.xray(".item",[{
+                name: "@data-title",
+                price: ".item-value-indicator",
+                amount: "@data-num-available",
+            }])
+        }]),
     })
     ((err, result) => {
         processScrape(programMemory, err, result, link);
