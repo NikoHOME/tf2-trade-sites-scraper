@@ -6,8 +6,6 @@ import { checkForEssentialFiles } from './file.js';
 
 import { Prompt, Bar } from './promt.js';
 
-import { getKeyPrice } from './backpack.js';
-
 import * as req from "request-x-ray";
 
 const makeDriver = req.default;
