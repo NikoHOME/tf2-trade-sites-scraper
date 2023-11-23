@@ -42,15 +42,68 @@ export function removeSpecialChars(text) {
 import { parseItemPrice, getRefDifference } from './func.js';
 
 
-function compareCombinedItems(a, b ) {
-    if ( a.scrapBackpackSellBalance < b.scrapBackpackSellBalance ){
-      return -1;
+function compareByScrapBuy(a, b) {
+    if ( a.scrapBackpackBuyBalance < b.scrapBackpackBuyBalance ){
+        return -1;
     }
-    if ( a.scrapBackpackSellBalance > b.scrapBackpackSellBalance ){
-      return 1;
+    if ( a.scrapBackpackBuyBalance > b.scrapBackpackBuyBalance ){
+        return 1;
     }
     return 0;
-  }
+}
+
+function compareByScrapSell(a, b) {
+    if ( a.scrapBackpackSellBalance < b.scrapBackpackSellBalance ){
+        return -1;
+    }
+    if ( a.scrapBackpackSellBalance > b.scrapBackpackSellBalance ){
+        return 1;
+    }
+    return 0;
+}
+
+
+function compareByBackpackBallance(a, b) {
+    if ( a.balance < b.balance ){
+        return -1;
+    }
+    if ( a.balance > b.balance ){
+        return 1;
+    }
+    return 0;
+}
+
+
+function itemListToString(list, balanceType) {
+    let output = "";
+    for(let item of list) {
+        output += item.name + "\n";
+
+        switch(balanceType) {
+            case "balance":
+                output += "Buy on backpack sell on backpack: "
+                break;
+            case "scrapBackpackBuyBalance":
+                output += "Buy on scrap sell now: "
+                break;
+            case "scrapBackpackSellBalance":
+                output += "Buy on scrap make a listing: "
+                break;
+        }
+
+        output += item[balanceType] + "\n";
+
+        // output += "ScrapSellBalance: " + item.scrapBackpackBuyBalance + "\n";
+        // output += "ScrapBuyBalance: " + item.scrapBackpackSellBalance + "\n";
+        // output += "Balance: " + item.balance + "\n";
+        output += "Sell price: " + item.backpackSell + "\n";
+        output += "Buy price: " + item.backpackBuy + "\n";
+        output += "Scrap buy price: " + item.scrapBuy + "\n";
+        output += "Sell comment: "  + item.sellComm + "\n";
+        output += "Buy comment: " + item.buyComm + "\n\n";
+    }
+    return output;
+}
 
 export function combineTauntFiles(programMemory) {
     
@@ -76,18 +129,19 @@ export function combineTauntFiles(programMemory) {
 
                 combinedArray.push({
                     name: backpackItem.name,
-                    scrapBackpackSellBalance: getRefDifference(
-                        programMemory,
-                        parseItemPrice(scrapItem.price),
-                        parseItemPrice(backpackItem.sellOrder.value), 
-                        
-                    ),
                     scrapBackpackBuyBalance: getRefDifference(
                         programMemory,
                         parseItemPrice(scrapItem.price),
                         parseItemPrice(backpackItem.buyOrder.value), 
                         
                     ),
+                    scrapBackpackSellBalance: getRefDifference(
+                        programMemory,
+                        parseItemPrice(scrapItem.price),
+                        parseItemPrice(backpackItem.sellOrder.value), 
+                        
+                    ),
+                    
                     balance: backpackItem.balance,
                     backpackSell: backpackItem.sellOrder.value,
                     backpackBuy: backpackItem.buyOrder.value,
@@ -100,20 +154,26 @@ export function combineTauntFiles(programMemory) {
             }
         }
     }
-    combinedArray.sort(compareCombinedItems);
-    let output = "";
-    for(let item of combinedArray) {
-        output += item.name + "\n";
+    combinedArray.sort(compareByBackpackBallance);
 
-        output += "ScrapSellBalance: " + item.scrapBackpackSellBalance + "\n";
-        output += "ScrapBuyBalance: " + item.scrapBackpackBuyBalance + "\n";
-        output += "Balance: " + item.balance + "\n";
-        output += "Sell price: " + item.backpackSell + "\n";
-        output += "Buy price: " + item.backpackBuy + "\n";
-        output += "Scrap buy price: " + item.scrapBuy + "\n";
-        output += "Sell comment: "  + item.sellComm + "\n";
-        output += "Buy comment: " + item.buyComm + "\n\n";
-    }
+    let output = itemListToString(combinedArray, "balance");
 
     cacheText(removeSpecialChars(output), "taunt_combine");
+
+    
+    output = itemListToString(combinedArray.slice(0,5), "balance");
+    cacheText(removeSpecialChars(output), "taunt_backpack_easy_sell");
+
+    output = itemListToString(combinedArray.slice(combinedArray.length-5,combinedArray.length), "balance");
+    cacheText(removeSpecialChars(output), "taunt_backpack_invest");
+
+
+
+    combinedArray.sort(compareByScrapBuy);
+    output = itemListToString(combinedArray.slice(0,5), "scrapBackpackBuyBalance");
+    cacheText(removeSpecialChars(output), "taunt_scrap_buy");
+
+    combinedArray.sort(compareByScrapSell);
+    output = itemListToString(combinedArray.slice(0,5), "scrapBackpackSellBalance");
+    cacheText(removeSpecialChars(output), "taunt_scrap_sell");
 }
