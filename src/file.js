@@ -33,10 +33,11 @@ export const ObjectFileNames = {
 
 export function removeSpecialChars(text) {
     const excludeList = ["\"", "\'"];
+    let output = text;
     for(let string of excludeList) {
-        text = text.replaceAll(string, "");
+        output = output.replaceAll(string, "");
     }
-    return text;
+    return output;
 }
 
 import { parseItemPrice, getRefDifference } from './func.js';
@@ -117,6 +118,7 @@ export function combineTauntFiles(programMemory) {
     let scrap = readCacheObject(".scrap_taunt");
     let backpack = readCacheObject(".backpack_taunt");
 
+
     let combinedArray = [];
 
     for(let scrapItem of scrap) {
@@ -146,8 +148,6 @@ export function combineTauntFiles(programMemory) {
                     sellComm: backpackItem.sellOrder.comment,
                     buyComm: backpackItem.buyOrder.comment,
                 });
-
-
             }
         }
     }
@@ -158,11 +158,7 @@ export function combineTauntFiles(programMemory) {
     cacheText(removeSpecialChars(output), "taunt_combine");
 
     
-    output = itemListToString(combinedArray.slice(0,5), "balance");
-    cacheText(removeSpecialChars(output), "taunt_backpack_easy_sell");
 
-    output = itemListToString(combinedArray.slice(combinedArray.length-5,combinedArray.length), "balance");
-    cacheText(removeSpecialChars(output), "taunt_backpack_invest");
 
 
 
