@@ -68,7 +68,13 @@ async function scrapeLinks(programMemory, linkList) {
     programMemory.scrapingOutput.sort(compareScrapedItems);
     console.log(programMemory.scrapingOutput);
 
+    // Cache the result for
+    // later use
     cacheText(convertScrapingOutput(programMemory.scrapingOutput), FileNames[programMemory.currentLink]);
+
+    cacheText(convertScrapingOutput(programMemory.scrapingOutput.slice(0,5)), "taunt_backpack_easy_sell");
+    cacheText(convertScrapingOutput(programMemory.scrapingOutput.slice(-5)), "taunt_backpack_invest");
+
     cacheObject(programMemory.scrapingOutput, ObjectFileNames[FileNames[programMemory.currentLink]]);
     programMemory.scrapingOutput = [];
 
@@ -183,7 +189,7 @@ export async function getKeyPrice(programMemory) {
 
 import { removeSpecialChars } from './file.js';
 
-function convertScrapingOutput(scrapingOutput) {
+export function convertScrapingOutput(scrapingOutput) {
 
     let output = "";
     for(let item of scrapingOutput) {
@@ -201,8 +207,6 @@ function convertScrapingOutput(scrapingOutput) {
 
 
 export async function startBackpackScraping(programMemory) {
-
-    
 
     if(programMemory.backpackLinksList.length > 0) {
         programMemory.currentLink = programMemory.backpackLinksList.pop();
