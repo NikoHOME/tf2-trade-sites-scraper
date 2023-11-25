@@ -93,9 +93,6 @@ function itemListToString(list, balanceType) {
 
         output += item[balanceType] + "\n";
 
-        // output += "ScrapSellBalance: " + item.scrapBackpackBuyBalance + "\n";
-        // output += "ScrapBuyBalance: " + item.scrapBackpackSellBalance + "\n";
-        // output += "Balance: " + item.balance + "\n";
         output += "Sell price: " + item.backpackSell + "\n";
         output += "Buy price: " + item.backpackBuy + "\n";
         output += "Scrap buy price: " + item.scrapBuy + "\n";
