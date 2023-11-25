@@ -74,7 +74,7 @@ async function scrapeLinks(programMemory, linkList) {
 
     if(programMemory.backpackLinksList.length > 0) {
         programMemory.currentLink = programMemory.backpackLinksList.pop()
-        scrapeLinks(programMemory, Links.backpackLinks[programMemory.currentLink]);
+        await scrapeLinks(programMemory, Links.backpackLinks[programMemory.currentLink]);
     }
 
 }
@@ -206,6 +206,6 @@ export async function startBackpackScraping(programMemory) {
 
     if(programMemory.backpackLinksList.length > 0) {
         programMemory.currentLink = programMemory.backpackLinksList.pop();
-        scrapeLinks(programMemory, Links.backpackLinks[programMemory.currentLink]);
+        await scrapeLinks(programMemory, Links.backpackLinks[programMemory.currentLink]);
     } 
 }
