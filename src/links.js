@@ -1,6 +1,6 @@
 export const Links = {
     backpackLinks: {
-        backpackTauntLinks : [
+        backpackTauntPrompt : [
             "https://backpack.tf/stats/Unique/Taunt%3A%20Burstchester/Tradable/Craftable",
             "https://backpack.tf/stats/Unique/Taunt%3A%20The%20Victory%20Lap/Tradable/Craftable",
             "https://backpack.tf/stats/Unique/Taunt%3A%20Yeti%20Smash/Tradable/Craftable",
@@ -47,7 +47,7 @@ export const Links = {
             "https://backpack.tf/stats/Unique/Taunt%3A%20The%20Scooty%20Scoot/Tradable/Craftable",
             "https://backpack.tf/stats/Unique/Taunt%3A%20The%20Table%20Tantrum/Tradable/Craftable",
         ],
-        backpackCurrencyLinks : [
+        backpackCurrencyPrompt : [
             "https://backpack.tf/stats/Unique/Mann%20Co.%20Supply%20Crate%20Key/Tradable/Craftable",
             "https://backpack.tf/stats/Unique/Tour%20of%20Duty%20Ticket/Tradable/Non-Craftable",
             "https://backpack.tf/stats/Unique/Tour%20of%20Duty%20Ticket/Tradable/Craftable",
@@ -55,7 +55,7 @@ export const Links = {
         ],
     },
     scrapLinks : {
-        scrapTauntLink : "https://scrap.tf/buy/items",
-        scrapWeaponLink : "https://scrap.tf/buy/weapons",
+        scrapTauntPrompt : "https://scrap.tf/buy/items",
+        scrapWeaponPrompt : "https://scrap.tf/buy/weapons",
     }
 }

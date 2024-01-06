@@ -32,12 +32,13 @@ const backpackOptions = {
 
 export class ProgramMemory {
     constructor() {
-        this.backpackLinksList = [];
-        this.scrapLinksList = [];
+        this.backpackPromtsList = [];
+        this.scrapPromptsList = [];
         this.scrapingOutput = [];
         this.scrapingItemCounter;
         this.currentLink;
-        this.debug = false;
+        this.currentPromt;
+        this.debugLevel = 0;
         this.keyPrice = 0;
         
         this.xray = new Xray();
@@ -49,13 +50,16 @@ export class ProgramMemory {
 
         this.progressBar = Bar; 
         this.prompt = Prompt;
+
+        this.progressSpeed = 0;
     }
 
-    decrementCounter() {
-        this.scrapingItemCounter -= 1;
-        this.progressBar.increment();
+    decrementCounter(ammount = 1, time = 1000) {
+        this.scrapingItemCounter -= ammount;
+        this.progressBar.increment(ammount, {
+            speed: parseFloat(1000/time).toFixed(2) + " l/s"
+        });
     }
-
     prepareForScraping() {
         checkForEssentialFiles();
     }
