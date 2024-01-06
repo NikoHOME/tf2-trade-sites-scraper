@@ -78,8 +78,8 @@ async function scrapeLinks(programMemory, linkList) {
     cacheObject(programMemory.scrapingOutput, ObjectFileNames[FileNames[programMemory.currentLink]]);
     programMemory.scrapingOutput = [];
 
-    if(programMemory.backpackLinksList.length > 0) {
-        programMemory.currentLink = programMemory.backpackLinksList.pop()
+    if(programMemory.backpackPromtsList.length > 0) {
+        programMemory.currentLink = programMemory.backpackPromtsList.pop()
         await scrapeLinks(programMemory, Links.backpackLinks[programMemory.currentLink]);
     }
 
@@ -95,7 +95,6 @@ function processScrape(programMemory, err, result, link) {
 
 
     if(err) {
-        //console.log(err);
         if(programMemory.debug) console.log("<!!> Error for " + link);
         programMemory.decrementCounter();
         return;
@@ -207,9 +206,9 @@ export function convertScrapingOutput(scrapingOutput) {
 
 
 export async function startBackpackScraping(programMemory) {
-
-    if(programMemory.backpackLinksList.length > 0) {
-        programMemory.currentLink = programMemory.backpackLinksList.pop();
+    await getKeyPrice(programMemory);
+    if(programMemory.backpackPromtsList.length > 0) {
+        programMemory.currentLink = programMemory.backpackPromtsList.pop();
         await scrapeLinks(programMemory, Links.backpackLinks[programMemory.currentLink]);
     } 
 }

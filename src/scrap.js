@@ -1,5 +1,3 @@
-
-
 function convertScrapingOutput(scrapingOutput) {
 
     let output = "";
@@ -79,9 +77,10 @@ async function scrapeLink(programMemory, link) {
 }
 
 
+
 import { Links } from "./links.js";
 
 export async function startScrapScraping(programMemory) {
-    programMemory.currentLink = programMemory.scrapLinksList[0];
+    programMemory.currentLink = programMemory.scrapPromptsList[0];
     await scrapeLink(programMemory, Links.scrapLinks[programMemory.currentLink])
 }
