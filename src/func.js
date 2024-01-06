@@ -32,3 +32,7 @@ export function getRefDifference(programMemory, price1, price2) {
         .toFixed(2)
     );
 }
+
+export function wait(milliseconds) {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+  }
