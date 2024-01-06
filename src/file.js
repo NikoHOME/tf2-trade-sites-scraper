@@ -5,11 +5,28 @@ export function cacheText(text, path) {
     fs.writeFileSync("./cache/" + path, text);
 }
 
+export function cacheAppendText(text, path) {
+    fs.appendFileSync("./cache/" + path, text);
+}
+
 export function cacheObject(obj, path) {
     fs.writeFileSync("./cache/" + path, JSON.stringify(obj, null, 2));
 }
+
+export function readCacheText(path) {
+    return fs.readFileSync("./cache/" + path, 'utf8');
+}
 export function readCacheObject(path) {
     return JSON.parse(fs.readFileSync("./cache/" + path, 'utf8'));
+}
+
+export function deleteCache(path) {
+    if(fs.existsSync("./cache/" + path))
+        fs.unlinkSync("./cache/" + path);
+}
+
+export function cacheExists(path) {
+    return fs.existsSync("./cache/" + path);
 }
 
 export function checkForEssentialFiles() {
@@ -22,6 +39,8 @@ export const FileNames = {
     backpackTauntLinks: 'backpack_taunt',
     scrapTauntLink: 'scrap_taunt',
     scrapWeaponLink: 'scrap_weapon',
+    profitWeapons: 'profit_weapons',
+    lastWeaponClass: 'last_weapon_class'
 };
 
 export const ObjectFileNames = {
